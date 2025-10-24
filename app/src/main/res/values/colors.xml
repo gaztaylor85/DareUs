@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors - Based on Your Beautiful Logo! -->
+    <color name="primary_purple">#B794F6</color>
+    <color name="primary_purple_dark">#9F7AEA</color>
+    <color name="primary_purple_light">#D6BCFA</color>
+
+    <!-- Gradient Colors from Logo -->
+    <color name="gradient_start">#B794F6</color>
+    <color name="gradient_middle">#9F7AEA</color>
+    <color name="gradient_end">#805AD5</color>
+
+    <!-- Background Colors -->
+    <color name="background_dark">#1A1B23</color>
+    <color name="background_darker">#16171D</color>
+    <color name="background_card">#2D2E37</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#E2E8F0</color>
+    <color name="text_muted">#A0AEC0</color>
+    <color name="text_accent">#B794F6</color>
+
+    <!-- Action Colors -->
+    <color name="success">#48BB78</color>
+    <color name="warning">#ED8936</color>
+    <color name="error">#F56565</color>
+    <color name="info">#4299E1</color>
+
+    <!-- Glass Effect Colors -->
+    <color name="glass_overlay">#40FFFFFF</color>
+    <color name="glass_border">#60B794F6</color>
+
+    <!-- Button Colors -->
+    <color name="button_primary_start">#B794F6</color>
+    <color name="button_primary_end">#805AD5</color>
+    <color name="button_secondary">#4A5568</color>
+
+    <!-- Input Field Colors -->
+    <color name="input_background">#30B794F6</color>
+    <color name="input_border">#50B794F6</color>
+    <color name="input_hint">#9F7AEA</color>
+</resources>

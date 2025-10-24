@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/premium_gradient_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp">
+
+        <!-- Header -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🎯"
+            android:textSize="64sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="16dp"
+            android:shadowColor="#FF6B9D"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="20"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose Your Dare"
+            android:textSize="28sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"
+            android:shadowColor="#FF6B9D"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="15"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pick a category to send a random dare to your partner"
+            android:textSize="14sp"
+            android:textColor="#E8BBE8"
+            android:gravity="center"
+            android:layout_marginBottom="32dp"/>
+
+        <!-- Note: The category buttons will be created programmatically
+             in the Activity for easier color management -->
+
+        <!-- Placeholder for dynamic content -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Category buttons will appear here"
+            android:textColor="#9575CD"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:layout_marginTop="100dp"
+            android:layout_marginBottom="100dp"/>
+
+    </LinearLayout>
+
+</ScrollView>

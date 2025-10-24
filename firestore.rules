@@ -1,0 +1,204 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isPartner(userId) {
+      return isAuthenticated() &&
+             get(/databases/$(database)/documents/dareus/$(request.auth.uid)).data.partnerId == userId;
+    }
+
+    function isOwnerOrPartner(userId) {
+      return isOwner(userId) || isPartner(userId);
+    }
+
+    // Default deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ========================================
+    // USER PROFILES (dareus collection)
+    // ========================================
+    match /dareus/{userId} {
+      // Users can read their own profile and their partner's profile
+      allow read: if isOwner(userId) || isPartner(userId);
+
+      // Users can only create their own profile
+      allow create: if isOwner(userId) &&
+                       request.resource.data.keys().hasAll(['firstName', 'createdAt']) &&
+                       request.resource.data.createdAt is timestamp;
+
+      // Users can update their own profile with restrictions
+      allow update: if isOwner(userId) &&
+                       // Cannot change protected fields
+                       (!request.resource.data.diff(resource.data).affectedKeys().hasAny([
+                         'createdAt',
+                         'premiumTier',
+                         'premiumExpiresAt',
+                         'premiumPurchasedAt',
+                         'points',              // ⚠️ LOCKED: Only backend can modify points
+                         'totalDares',          // ⚠️ LOCKED: Only backend can modify
+                         'daresSent',           // ⚠️ LOCKED: Only backend can modify
+                         'unlockedBadges'       // ⚠️ LOCKED: Only backend can modify badges
+                       ])) &&
+                       request.resource.data.firstName is string &&
+                       request.resource.data.firstName.size() > 0;
+
+      // No deletion of profiles
+      allow delete: if false;
+    }
+
+    // ========================================
+    // DARES COLLECTION
+    // ========================================
+    match /dares/{dareId} {
+      // Helper to check if user is involved in this dare
+      function isInvolvedInDare() {
+        return isAuthenticated() && (
+          resource.data.fromUserId == request.auth.uid ||
+          resource.data.toUserId == request.auth.uid
+        );
+      }
+
+      function isInvolvedInNewDare() {
+        return isAuthenticated() && (
+          request.resource.data.fromUserId == request.auth.uid ||
+          request.resource.data.toUserId == request.auth.uid
+        );
+      }
+
+      // Read: Only sender and recipient can read
+      allow read: if isInvolvedInDare();
+
+      // Create: Only the sender can create a dare TO their partner
+      allow create: if isAuthenticated() &&
+                       request.resource.data.fromUserId == request.auth.uid &&
+                       isPartner(request.resource.data.toUserId) &&
+                       request.resource.data.keys().hasAll(['dareText', 'category', 'points', 'fromUserId', 'toUserId', 'status', 'sentAt']) &&
+                       request.resource.data.dareText is string &&
+                       request.resource.data.dareText.size() > 0 &&
+                       request.resource.data.dareText.size() <= 500 &&
+                       request.resource.data.points is int &&
+                       request.resource.data.points >= 1 &&
+                       request.resource.data.points <= 100 &&
+                       request.resource.data.status == 'pending' || request.resource.data.status == 'pending_negotiation' &&
+                       request.resource.data.sentAt is timestamp;
+
+      // Update: Only recipient can update (complete/reject), with restrictions
+      allow update: if isAuthenticated() &&
+                       resource.data.toUserId == request.auth.uid &&
+                       // Can only change status, completedAt, rejectedAt, earnedPoints
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'completedAt', 'rejectedAt', 'earnedPoints', 'acceptedAt', 'negotiatedPoints', 'proposedPoints', 'negotiationCount', 'lastNegotiatedBy', 'lastCounterOfferAt', 'rejectedBy', 'fromUserId', 'toUserId']) &&
+                       // Status transitions must be valid
+                       (
+                         (resource.data.status == 'pending' &&
+                          (request.resource.data.status == 'completed' || request.resource.data.status == 'rejected')) ||
+                         (resource.data.status == 'pending_negotiation' &&
+                          (request.resource.data.status == 'pending' || request.resource.data.status == 'rejected' || resource.data.status == 'pending_negotiation'))
+                       );
+
+      // No deletion
+      allow delete: if false;
+    }
+
+    // ========================================
+    // NOTIFICATIONS COLLECTION
+    // ========================================
+    match /notifications/{notificationId} {
+      // Only backend functions can write notifications
+      allow read: if false; // Backend handles notification delivery
+      allow write: if false; // Only Cloud Functions can create notifications
+    }
+
+    // ========================================
+    // MONTHLY COMPETITIONS
+    // ========================================
+    match /monthlyCompetitions/{competitionId} {
+      function isInvolvedInCompetition() {
+        return isAuthenticated() && (
+          resource.data.user1Id == request.auth.uid ||
+          resource.data.user2Id == request.auth.uid
+        );
+      }
+
+      // Read: Only the two users involved can read
+      allow read: if isInvolvedInCompetition();
+
+      // Create: Users can create competitions for themselves and their partner
+      allow create: if isAuthenticated() &&
+                       (request.resource.data.user1Id == request.auth.uid ||
+                        request.resource.data.user2Id == request.auth.uid) &&
+                       isPartner(request.resource.data.user1Id == request.auth.uid ?
+                                request.resource.data.user2Id : request.resource.data.user1Id);
+
+      // Update: Users can update their own prize and reveal settings
+      allow update: if isInvolvedInCompetition() &&
+                       // Limit what fields can be changed
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                         'user1Prize', 'user2Prize',
+                         'user1PrizeSet', 'user2PrizeSet',
+                         'user1Revealed', 'user2Revealed',
+                         'currentUser1Points', 'currentUser2Points',
+                         'lastUpdated'
+                       ]);
+
+      allow delete: if false;
+    }
+
+    // ========================================
+    // BADGES (if stored separately)
+    // ========================================
+    match /badges/{userId} {
+      // Users can only read their own badges
+      allow read: if isOwner(userId) || isPartner(userId);
+
+      // Only backend can write badges (we'll enforce via functions)
+      allow write: if false;
+    }
+
+    // ========================================
+    // PURCHASES COLLECTION (audit trail)
+    // ========================================
+    match /purchases/{purchaseId} {
+      // Users can only read their own purchase history
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Only backend functions can create purchase records
+      allow write: if false;
+    }
+
+    // ========================================
+    // PARTNER LINK REQUESTS
+    // ========================================
+    match /partnerLinkRequests/{requestId} {
+      // Users can read requests sent by them or to them
+      allow read: if isAuthenticated() && (
+        resource.data.fromUserId == request.auth.uid ||
+        resource.data.toUserId == request.auth.uid
+      );
+
+      // Only backend functions can create/update requests
+      allow write: if false;
+    }
+
+    // ========================================
+    // AUDIT LOG (admin read-only)
+    // ========================================
+    match /auditLog/{logId} {
+      // No one can read audit logs (admin uses Firebase Console or Cloud Functions)
+      allow read: if false;
+
+      // Only backend functions can write to audit log
+      allow write: if false;
+    }
+  }
+}

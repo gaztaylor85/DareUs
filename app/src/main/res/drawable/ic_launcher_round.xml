@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Full background circle - fills entire icon -->
+    <path android:fillColor="#2D1B69"
+        android:pathData="M24,24m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0"/>
+
+    <!-- Gradient overlay for depth -->
+    <path android:fillColor="#6B46C1"
+        android:pathData="M24,24m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0"/>
+
+    <!-- Left chat bubble - BIGGER -->
+    <path android:fillColor="#B794F6"
+        android:pathData="M8,12h12c3,0 4.5,1.5 4.5,4.5v6c0,3 -1.5,4.5 -4.5,4.5h-9l-3,3v-3c-3,0 -4.5,-1.5 -4.5,-4.5v-6c0,-3 1.5,-4.5 4.5,-4.5z"/>
+
+    <!-- Heart in left bubble - BIGGER -->
+    <path android:fillColor="#FF6B9D"
+        android:pathData="M14,17c0,-1.5 -1.2,-2.5 -2.5,-2.5s-2.5,1 -2.5,2.5c0,1.5 2.5,4 2.5,4s2.5,-2.5 2.5,-4z
+                           M19,17c0,-1.5 -1.2,-2.5 -2.5,-2.5s-2.5,1 -2.5,2.5c0,1.5 2.5,4 2.5,4s2.5,-2.5 2.5,-4z"/>
+
+    <!-- Right chat bubble - BIGGER -->
+    <path android:fillColor="#E8BBE8"
+        android:pathData="M25,15h12c3,0 4.5,1.5 4.5,4.5v6c0,3 -1.5,4.5 -4.5,4.5h-9l-3,3v-3c-3,0 -4.5,-1.5 -4.5,-4.5v-6c0,-3 1.5,-4.5 4.5,-4.5z"/>
+
+    <!-- Checkmark in right bubble - BIGGER -->
+    <path android:fillColor="#4CAF50"
+        android:pathData="M29,21l3,3l6,-6"
+        android:strokeWidth="2"
+        android:strokeColor="#4CAF50"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+
+    <!-- Subtle highlight for 3D effect -->
+    <path android:fillColor="#FFFFFF"
+        android:fillAlpha="0.2"
+        android:pathData="M24,4c11,0 20,9 20,20c0,-11 -9,-20 -20,-20s-20,9 -20,20c0,-11 9,-20 20,-20z"/>
+
+</vector>
